@@ -286,38 +286,32 @@ class NiuniuPlugin(Star):
         # 如果插件未启用，忽略其他所有消息
         if not group_data.get('plugin_enabled', False):
             return
+
+        # 统一检查是否在开冲
+        user_id = str(event.get_sender_id())
+        niuniu_lengths = self._load_niuniu_lengths()
+        group_data = niuniu_lengths.get(group_id, {'plugin_enabled': False})
+        user_data = group_data.get(user_id, {})
+
+        is_rushing = user_data.get('is_rushing', False)
+
         # 处理其他命令
         if msg.startswith("开冲"):
-            # 从YAML文件中加载数据
-            niuniu_lengths = self._load_niuniu_lengths()
-            group_data = niuniu_lengths.get(group_id, {'plugin_enabled': False})
-            user_id = str(event.get_sender_id())
-            user_data = group_data.get(user_id)
-            
-            # 判断是否已经在开冲
-            if user_data and user_data.get('is_rushing', False):
+            if is_rushing:
                 yield event.plain_result("❌ 你已经在开冲了，无需重复操作")
                 return
-            
-            # 调用开冲处理函数
             async for result in self.games.start_rush(event):
                 yield result
         elif msg.startswith("停止开冲"):
-            # 从YAML文件中加载数据
-            niuniu_lengths = self._load_niuniu_lengths()
-            group_data = niuniu_lengths.get(group_id, {'plugin_enabled': False})
-            user_id = str(event.get_sender_id())
-            user_data = group_data.get(user_id)
-            
-            # 判断是否正在开冲
-            if not user_data or not user_data.get('is_rushing', False):
+            if not is_rushing:
                 yield event.plain_result("❌ 你当前并未在开冲，无需停止")
                 return
-            
-            # 调用停止开冲处理函数
             async for result in self.games.stop_rush(event):
                 yield result
         elif msg.startswith("飞飞机"):
+            if is_rushing:
+                yield event.plain_result("❌ 牛牛快冲晕了，还做不了其他事情，要不先停止开冲？")
+                return
             async for result in self.games.fly_plane(event):
                 yield result
         else:
@@ -335,26 +329,9 @@ class NiuniuPlugin(Star):
 
             for cmd, handler in handler_map.items():
                 if msg.startswith(cmd):
-                    # 检查是否正在开冲
-                    user_id = str(event.get_sender_id())
-                    
-                    # 从YAML文件中加载数据
-                    niuniu_lengths = self._load_niuniu_lengths()
-                    group_data = niuniu_lengths.get(group_id, {'plugin_enabled': False})
-                    
-                    # 如果插件未启用，提示并返回
-                    if not group_data.get('plugin_enabled', False):
-                        yield event.plain_result("❌ 插件未启用")
-                        return
-                    
-                    user_data = group_data.get(user_id)
-                    
-                    # 判断是否开冲
-                    if user_data and user_data.get('is_rushing', False):
+                    if is_rushing:
                         yield event.plain_result("❌ 牛牛快冲晕了，还做不了其他事情，要不先停止开冲？")
                         return
-                    
-                    # 如果没有开冲，继续执行对应命令
                     async for result in handler(event):
                         yield result
                     return
