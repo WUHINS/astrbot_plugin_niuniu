@@ -25,7 +25,7 @@ class NiuniuGames:
             return {}
     
     def _save_data(self, data: Dict[str, Any]):
-        """保存YAML数据（带异常处理）"""
+        """保存YAML数据"""
         try:
             os.makedirs(os.path.dirname(self.data_file), exist_ok=True)
             with open(self.data_file, 'w', encoding='utf-8') as f:
