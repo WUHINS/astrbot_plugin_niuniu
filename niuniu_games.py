@@ -14,7 +14,7 @@ class NiuniuGames:
         self.data_file = os.path.join('data', 'niuniu_lengths.yml')
     
     def _load_data(self) -> Dict[str, Any]:
-        """加载YAML数据（带异常处理）"""
+        """加载YAML数据"""
         try:
             if os.path.exists(self.data_file):
                 with open(self.data_file, 'r', encoding='utf-8') as f:
