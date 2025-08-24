@@ -226,7 +226,7 @@ class NiuniuShop:
 
     def _load_sign_data(self) -> Dict[str, Any]:
         """加载签到数据"""
-        sign_data_path = os.path.join('data', 'sign_data.yml')
+        sign_data_path = os.path.join('data', 'plugins_WealthAndContract_data', 'WAC_data.yml')
         if not os.path.exists(sign_data_path):
             with open(sign_data_path, 'w', encoding='utf-8') as f:
                 yaml.dump({}, f)
@@ -235,7 +235,7 @@ class NiuniuShop:
 
     def _save_sign_data(self, data: Dict[str, Any]):
         """保存签到数据"""
-        sign_data_path = os.path.join('data', 'sign_data.yml')
+        sign_data_path = os.path.join('data', 'plugins_WealthAndContract_data', 'WAC_data.yml')
         with open(sign_data_path, 'w', encoding='utf-8') as f:
             yaml.dump(data, f, allow_unicode=True)
 
